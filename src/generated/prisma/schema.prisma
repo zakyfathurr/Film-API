@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model film_genres {
+  film_id  Int
+  genre_id Int
+  films    films  @relation(fields: [film_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  genres   genres @relation(fields: [genre_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([film_id, genre_id])
+}
+
+model film_images {
+  id         Int       @id @default(autoincrement())
+  film_id    Int?
+  image_url  String
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  films      films?    @relation(fields: [film_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model films {
+  id             Int           @id @default(autoincrement())
+  title          String        @db.VarChar(255)
+  synopsis       String
+  status         String        @db.VarChar(20)
+  total_episodes Int
+  release_date   DateTime      @db.Date
+  created_at     DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?     @default(now()) @db.Timestamp(6)
+  film_genres    film_genres[]
+  film_images    film_images[]
+  reviews        reviews[]
+  user_films     user_films[]
+}
+
+model genres {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(255)
+  created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?     @default(now()) @db.Timestamp(6)
+  film_genres film_genres[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model review_reactions {
+  user_id       Int
+  review_id     Int
+  reaction_type String?   @db.VarChar(10)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  reviews       reviews   @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, review_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  id               Int                @id @default(autoincrement())
+  user_id          Int?
+  film_id          Int?
+  rating           Int?
+  comment          String?
+  created_at       DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?          @default(now()) @db.Timestamp(6)
+  review_reactions review_reactions[]
+  films            films?             @relation(fields: [film_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            users?             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, film_id])
+}
+
+model user_films {
+  user_id     Int
+  film_id     Int
+  list_status String    @db.VarChar(20)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  films       films     @relation(fields: [film_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, film_id])
+}
+
+model users {
+  id               Int                @id @default(autoincrement())
+  username         String             @unique @db.VarChar(255)
+  email            String             @unique @db.VarChar(255)
+  password         String             @db.VarChar(255)
+  role             String             @default("user") @db.VarChar(10)
+  display_name     String?            @db.VarChar(255)
+  bio              String?
+  list_visibility  String?            @default("public") @db.VarChar(10)
+  created_at       DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?          @default(now()) @db.Timestamp(6)
+  review_reactions review_reactions[]
+  reviews          reviews[]
+  user_films       user_films[]
+}
