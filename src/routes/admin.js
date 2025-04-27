@@ -16,19 +16,18 @@ router.put('/genres/:id', authenticate, authorizeAdmin, updateGenre);
 router.post('/films', authenticate, authorizeAdmin, validateFilm, createFilm);
 
 module.exports = router;
-
 /**
  * @swagger
  * tags:
  *   name: Admin
- *   description: Admin management endpoints
+ *   description: Endpoints khusus untuk administrator
  */
 
 /**
  * @swagger
- * /admin/genres:
+ * /users/genres:
  *   post:
- *     summary: Create a new genre (Admin only)
+ *     summary: Membuat genre baru
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -38,23 +37,31 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Action
  *     responses:
  *       201:
- *         description: Genre created
- *       403:
- *         description: Admin access required
+ *         description: Genre berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *       500:
+ *         description: Gagal membuat genre
  */
 
 /**
  * @swagger
- * /admin/genres/{id}:
+ * /users/genres/{id}:
  *   put:
- *     summary: Update a genre (Admin only)
+ *     summary: Memperbarui genre berdasarkan ID
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -64,31 +71,38 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID genre
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Drama
  *     responses:
  *       200:
- *         description: Genre updated
- *       403:
- *         description: Admin access required
- *       404:
- *         description: Genre not found
+ *         description: Genre berhasil diperbarui
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *       500:
+ *         description: Gagal memperbarui genre
  */
 
 /**
  * @swagger
- * /admin/films:
+ * /users/films:
  *   post:
- *     summary: Create a new film (Admin only)
+ *     summary: Membuat film baru
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -98,40 +112,40 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - title
- *               - synopsis
- *               - images
- *               - genres
- *               - status
- *               - totalEpisodes
- *               - releaseDate
  *             properties:
  *               title:
  *                 type: string
+ *                 example: Your Name
  *               synopsis:
  *                 type: string
+ *                 example: A story of two teenagers who switch bodies...
  *               images:
  *                 type: array
  *                 items:
  *                   type: string
+ *                 example: ["http://example.com/image1.jpg", "http://example.com/image2.jpg"]
  *               genres:
  *                 type: array
  *                 items:
  *                   type: integer
+ *                 example: [1, 3]
  *               status:
  *                 type: string
  *                 enum: [not_yet_aired, airing, finished_airing]
  *               totalEpisodes:
  *                 type: integer
+ *                 example: 12
  *               releaseDate:
  *                 type: string
  *                 format: date
+ *                 example: 2024-07-01
  *     responses:
  *       201:
- *         description: Film created
- *       400:
- *         description: Validation error
- *       403:
- *         description: Admin access required
+ *         description: Film berhasil dibuat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Film'
+ *       500:
+ *         description: Gagal membuat film
  */

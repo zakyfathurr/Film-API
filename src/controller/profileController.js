@@ -127,8 +127,7 @@ const getUserPublicProfile = async (req, res) => {
       res.status(500).json({ error: 'Failed to get user profile', details: error.message });
     }
   };
-  
-  // Jangan lupa tambahkan ke exports
+
   module.exports = {
     getProfile,
     updateProfile,

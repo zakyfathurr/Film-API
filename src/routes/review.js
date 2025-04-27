@@ -15,20 +15,19 @@ router.delete('/:id', authenticate, reviewController.deleteReview);
 
 module.exports = router;
 
-
 /**
  * @swagger
  * tags:
- *   name: Reviews
- *   description: Film review management
+ *   name: Review
+ *   description: API untuk mengelola ulasan/review film
  */
 
 /**
  * @swagger
  * /reviews:
  *   post:
- *     summary: Create a review
- *     tags: [Reviews]
+ *     summary: Buat ulasan baru untuk film
+ *     tags: [Review]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -43,32 +42,37 @@ module.exports = router;
  *             properties:
  *               film_id:
  *                 type: integer
+ *                 example: 1
  *               rating:
  *                 type: integer
  *                 minimum: 1
  *                 maximum: 10
+ *                 example: 8
  *               comment:
  *                 type: string
- *                 maxLength: 1000
+ *                 example: Film yang sangat menyentuh hati.
  *     responses:
  *       201:
- *         description: Review created
+ *         description: Berhasil membuat review
  *       400:
- *         description: Validation error
+ *         description: Film tidak ada di list pengguna atau tidak valid
+ *       500:
+ *         description: Gagal membuat review
  */
 
 /**
  * @swagger
  * /reviews/{id}:
  *   put:
- *     summary: Update a review
- *     tags: [Reviews]
+ *     summary: Perbarui ulasan film milik pengguna
+ *     tags: [Review]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID review yang akan diperbarui
  *         schema:
  *           type: integer
  *     requestBody:
@@ -77,42 +81,53 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - rating
  *             properties:
  *               rating:
  *                 type: integer
  *                 minimum: 1
  *                 maximum: 10
+ *                 example: 9
  *               comment:
  *                 type: string
- *                 maxLength: 1000
+ *                 example: abis rewatch lebih kerasa.
+ *               film_id:
+ *                 type: integer
+ *                 example: 1
  *     responses:
  *       200:
- *         description: Review updated
+ *         description: Review berhasil diperbarui
  *       403:
- *         description: Not your review
+ *         description: Tidak diizinkan memperbarui review orang lain
  *       404:
- *         description: Review not found
+ *         description: Review tidak ditemukan
+ *       500:
+ *         description: Gagal memperbarui review
  */
 
 /**
  * @swagger
  * /reviews/{id}:
  *   delete:
- *     summary: Delete a review
- *     tags: [Reviews]
+ *     summary: Hapus ulasan milik pengguna
+ *     tags: [Review]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID review yang akan dihapus
  *         schema:
  *           type: integer
  *     responses:
  *       204:
- *         description: Review deleted
+ *         description: Review berhasil dihapus
  *       403:
- *         description: Not your review
+ *         description: Tidak diizinkan menghapus review orang lain
  *       404:
- *         description: Review not found
+ *         description: Review tidak ditemukan
+ *       500:
+ *         description: Gagal menghapus review
  */

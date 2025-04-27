@@ -11,20 +11,19 @@ router.post('/:filmId', authenticate, addToListValidator, addFilmToList);
 router.get('/:userId', getUserFilmList);
 
 module.exports = router;
-
 /**
  * @swagger
  * tags:
- *   name: film list
- *   description: Manage user film lists
+ *   name: UserFilmList
+ *   description: API untuk mengelola daftar film pengguna
  */
 
 /**
  * @swagger
- * /user-lists/{filmId}:
+ * /listFilms/{filmId}:
  *   post:
- *     summary: Add/update film in user list
- *     tags: [film list]
+ *     summary: Tambahkan film ke daftar pengguna
+ *     tags: [UserFilmList]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -33,52 +32,60 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID film yang akan ditambahkan
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - list_status
  *             properties:
  *               list_status:
  *                 type: string
  *                 enum: [plan_to_watch, watching, completed, on_hold, dropped]
- *               userId:
- *                 type: integer
- *                 description: Required for admin to modify other users' lists
+ *                 example: plan_to_watch
  *     responses:
  *       201:
- *         description: Film added to list
+ *         description: Film berhasil ditambahkan ke daftar
  *       400:
- *         description: Invalid status or validation error
- *       403:
- *         description: Forbidden (admin only)
+ *         description: Status daftar tidak valid atau film belum tayang tidak boleh ditambahkan
+ *       404:
+ *         description: Film tidak ditemukan
+ *       500:
+ *         description: Gagal menambahkan film ke daftar
  */
 
 /**
  * @swagger
- * /user-lists/{userId}:
+ * /listFilms/{userId}:
  *   get:
- *     summary: Get user's film list
- *     tags: [film list]
+ *     summary: Ambil daftar film milik pengguna
+ *     tags: [UserFilmList]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID pengguna
  *       - in: query
  *         name: status
+ *         required: false
  *         schema:
  *           type: string
  *           enum: [plan_to_watch, watching, completed, on_hold, dropped]
+ *         description: Filter daftar berdasarkan status
  *     responses:
  *       200:
- *         description: User's film list
+ *         description: Berhasil mengambil daftar film
+ *       400:
+ *         description: Filter status tidak valid
  *       403:
- *         description: List is private
+ *         description: Daftar bersifat private
  *       404:
- *         description: User not found
+ *         description: Pengguna tidak ditemukan
+ *       500:
+ *         description: Gagal mengambil daftar film
  */

@@ -3,12 +3,12 @@ const prisma = new PrismaClient();
 
 const getFilms = async (req, res) => {
   try {
-    const { search, genre, status, sort } = req.query;
+    const { title, genre, status, sort } = req.query;
     
     const films = await prisma.films.findMany({
       where: {
         AND: [
-          search ? { title: { contains: search, mode: 'insensitive' } } : {},
+          title ? { title: { contains: title, mode: 'insensitive' } } : {},
           genre ? { film_genres: { some: { genres: { name: genre } } } } : {},
           status ? { status } : {}
         ]
@@ -122,9 +122,42 @@ const getFilmDetail = async (req, res) => {
   }
 };
 
+const getFilmsUsingPagination = async (req, res) => {
+  try {
+   
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Hitung offset
+    const skip = (page - 1) * limit;
+
+    // Ambil film dengan pagination
+    const films = await prisma.films.findMany({
+      skip,
+      take: limit,
+      orderBy: { id: 'asc' } 
+    });
+
+    // Total count untuk pagination info
+    const totalFilms = await prisma.films.count();
+
+    res.json({
+      data: films,
+      pagination: {
+        total: totalFilms,
+        page,
+        limit,
+        totalPages: Math.ceil(totalFilms / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch films', details: error.message });
+  }
+};
 
 
 module.exports = {
   getFilms,
   getFilmDetail,
+  getFilmsUsingPagination
 };

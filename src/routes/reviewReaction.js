@@ -11,26 +11,26 @@ router.post('/:reviewId', authenticate, reactToReviewValidator, reactToReview);
 router.get('/:reviewId', getReviewReactions);
 
 module.exports = router;
-
 /**
  * @swagger
  * tags:
- *   name: Review Reactions
- *   description: Like/dislike reviews
+ *   name: ReviewReaction
+ *   description: API untuk memberi reaksi (like/dislike) terhadap review film
  */
 
 /**
  * @swagger
- * /reviews/{reviewId}:
+ * /review-reaction/{reviewId}:
  *   post:
- *     summary: React to a review (like/dislike)
- *     tags: [Review Reactions]
+ *     summary: Beri atau ubah reaksi (like/dislike) terhadap review
+ *     tags: [ReviewReaction]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: reviewId
  *         required: true
+ *         description: ID dari review yang akan diberi reaksi
  *         schema:
  *           type: integer
  *     requestBody:
@@ -45,30 +45,34 @@ module.exports = router;
  *               reactionType:
  *                 type: string
  *                 enum: [like, dislike]
+ *                 example: like
  *     responses:
  *       200:
- *         description: Reaction added/updated
+ *         description: Reaksi berhasil diberikan/diperbarui/dihapus
  *       400:
- *         description: Invalid reaction type
+ *         description: Tipe reaksi tidak valid
  *       404:
- *         description: Review not found
+ *         description: Review tidak ditemukan
+ *       500:
+ *         description: Gagal memproses reaksi
  */
 
 /**
  * @swagger
- * /reviews/{reviewId}:
+ * /review-reaction/{reviewId}:
  *   get:
- *     summary: Get review reactions count
- *     tags: [Review Reactions]
+ *     summary: Ambil jumlah like dan dislike pada review
+ *     tags: [ReviewReaction]
  *     parameters:
  *       - in: path
  *         name: reviewId
  *         required: true
+ *         description: ID dari review yang ingin diambil reaksinya
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Reaction counts
+ *         description: Jumlah like dan dislike berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -76,8 +80,10 @@ module.exports = router;
  *               properties:
  *                 likes:
  *                   type: integer
+ *                   example: 5
  *                 dislikes:
  *                   type: integer
- *       404:
- *         description: Review not found
+ *                   example: 2
+ *       500:
+ *         description: Gagal mengambil data reaksi
  */

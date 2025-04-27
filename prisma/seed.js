@@ -12,10 +12,9 @@ async function main() {
       display_name: 'Administrator',
       email: 'admin@123.com',
       password: adminPassword,
-      role: 'ADMIN'
+      role: 'admin'
     }
   });
-
   console.log('Admin user created');
 }
 

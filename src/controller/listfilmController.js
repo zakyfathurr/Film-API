@@ -88,6 +88,7 @@ const getUserFilmList = async (req, res) => {
   try {
     const { userId } = req.params;
     const { status } = req.query;
+    console.log(userId,req.user,req.userId)
 
     // Validasi status jika ada
     if (status && !['plan_to_watch', 'watching', 'completed', 'on_hold', 'dropped'].includes(status)) {

@@ -2,16 +2,34 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const updateFilmRating = require('../utils/updateFilmRating');
 
+// Create Review
 const createReview = async (req, res) => {
   try {
     const { film_id, rating, comment } = req.body;
     const user_id = req.user.id;
+    const parsedFilmId = parseInt(film_id);
 
-    // Cek apakah film ada di list user (bukan plan_to_watch)
+    if (isNaN(parsedFilmId)) {
+      return res.status(400).json({ error: 'Invalid film_id' });
+    }
+
+    // Cek apakah sudah ada review
+    const existingReview = await prisma.reviews.findFirst({
+      where: {
+        user_id,
+        film_id: parsedFilmId
+      }
+    });
+
+    if (existingReview) {
+      return res.status(400).json({ error: 'You have already reviewed this film' });
+    }
+
+    // Cek apakah film ada di list user (kecuali plan_to_watch)
     const userFilm = await prisma.user_films.findFirst({
       where: {
         user_id,
-        film_id,
+        film_id: parsedFilmId,
         NOT: { list_status: 'plan_to_watch' }
       }
     });
@@ -25,7 +43,7 @@ const createReview = async (req, res) => {
     const review = await prisma.reviews.create({
       data: {
         user_id,
-        film_id,
+        film_id: parsedFilmId,
         rating,
         comment
       },
@@ -40,8 +58,7 @@ const createReview = async (req, res) => {
       }
     });
 
-    // Trigger update average_ratings
-    await updateFilmRating(film_id);
+    await updateFilmRating(parsedFilmId);
 
     res.status(201).json(review);
   } catch (error) {
@@ -49,14 +66,21 @@ const createReview = async (req, res) => {
   }
 };
 
+
+// Update Review
 const updateReview = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rating, comment } = req.body;
+    const { rating, comment ,film_id} = req.body;
     const user_id = req.user.id;
+    const reviewId = parseInt(id);
+
+    if (isNaN(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
 
     const existingReview = await prisma.reviews.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: reviewId }
     });
 
     if (!existingReview) {
@@ -68,7 +92,7 @@ const updateReview = async (req, res) => {
     }
 
     const updatedReview = await prisma.reviews.update({
-      where: { id: parseInt(id) },
+      where: { id: reviewId },
       data: {
         rating,
         comment,
@@ -85,8 +109,7 @@ const updateReview = async (req, res) => {
       }
     });
 
-    // Trigger update average_ratings
-    await updateFilmRating(existingReview.film_id);
+    await updateFilmRating(film_id);
 
     res.json(updatedReview);
   } catch (error) {
@@ -94,13 +117,19 @@ const updateReview = async (req, res) => {
   }
 };
 
+// Delete Review
 const deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
     const user_id = req.user.id;
+    const reviewId = parseInt(id);
+
+    if (isNaN(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
 
     const existingReview = await prisma.reviews.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: reviewId }
     });
 
     if (!existingReview) {
@@ -111,14 +140,11 @@ const deleteReview = async (req, res) => {
       return res.status(403).json({ error: 'You can only delete your own reviews' });
     }
 
-    const film_id = existingReview.film_id;
-    
     await prisma.reviews.delete({
-      where: { id: parseInt(id) }
+      where: { id: reviewId }
     });
 
-    // Trigger update average_ratings
-    await updateFilmRating(film_id);
+    await updateFilmRating(existingReview.film_id);
 
     res.status(204).send();
   } catch (error) {

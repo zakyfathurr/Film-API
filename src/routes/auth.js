@@ -10,12 +10,11 @@ router.post('/register', registerValidator, authController.register);
 router.post('/login', loginValidator, authController.login);
 
 module.exports = router;
-
 /**
  * @swagger
  * tags:
- *   name: Authentication
- *   description: User authentication endpoints
+ *   name: Auth
+ *   description: User authentication and registration
  */
 
 /**
@@ -23,7 +22,7 @@ module.exports = router;
  * /auth/register:
  *   post:
  *     summary: Register a new user
- *     tags: [Authentication]
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -37,28 +36,43 @@ module.exports = router;
  *             properties:
  *               username:
  *                 type: string
- *                 minLength: 3
+ *                 example: johndoe
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: johndoe@example.com
  *               password:
  *                 type: string
- *                 minLength: 6
+ *                 format: password
+ *                 example: password123
  *               display_name:
  *                 type: string
+ *                 example: John Doe
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                   description: JWT token
  *       400:
- *         description: Validation error
+ *         description: Username or email already exists
+ *       500:
+ *         description: Registration failed
  */
 
 /**
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Login a user
- *     tags: [Authentication]
+ *     summary: User login
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -72,11 +86,27 @@ module.exports = router;
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: johndoe@example.com
  *               password:
  *                 type: string
+ *                 format: password
+ *                 example: password123
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                   description: JWT token
  *       401:
  *         description: Invalid credentials
+ *       500:
+ *         description: Login failed
  */
+

@@ -8,27 +8,28 @@ router.get('/', filmController.getFilms);
 // Get film detail bisa untuk guest
 router.get('/:id', filmController.getFilmDetail);
 
-module.exports = router;
 
+
+module.exports = router;
 /**
  * @swagger
  * tags:
  *   name: Films
- *   description: Film management endpoints
+ *   description: Endpoints for viewing films
  */
 
 /**
  * @swagger
  * /films:
  *   get:
- *     summary: Get list of films
+ *     summary: Get list of films (guest accessible)
  *     tags: [Films]
  *     parameters:
  *       - in: query
- *         name: search
+ *         name: title
  *         schema:
  *           type: string
- *         description: Search by title
+ *         description: Search film by title
  *       - in: query
  *         name: genre
  *         schema:
@@ -38,14 +39,14 @@ module.exports = router;
  *         name: status
  *         schema:
  *           type: string
- *           enum: [not_yet_aired, airing, finished_airing]
- *         description: Filter by status
+ *           enum: [ongoing, completed, upcoming]
+ *         description: Filter by film status
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
  *           enum: [latest, rating, title]
- *         description: Sort results
+ *         description: Sort by latest release, highest rating, or title
  *     responses:
  *       200:
  *         description: List of films
@@ -54,14 +55,36 @@ module.exports = router;
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Film'
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                   total_episodes:
+ *                     type: integer
+ *                   release_date:
+ *                     type: string
+ *                     format: date
+ *                   average_rating:
+ *                     type: number
+ *                   review_count:
+ *                     type: integer
+ *                   genres:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Genres'
+ *       500:
+ *         description: Failed to get films
  */
 
 /**
  * @swagger
  * /films/{id}:
  *   get:
- *     summary: Get film details
+ *     summary: Get film detail by ID (guest accessible)
  *     tags: [Films]
  *     parameters:
  *       - in: path
@@ -69,13 +92,68 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: integer
+ *         description: Film ID
  *     responses:
  *       200:
- *         description: Film details
+ *         description: Film detail
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Film'
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *                 synopsis:
+ *                   type: string
+ *                 status:
+ *                   type: string
+ *                 total_episodes:
+ *                   type: integer
+ *                 release_date:
+ *                   type: string
+ *                   format: date
+ *                 genres:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Genre'
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     format: uri
+ *                 average_rating:
+ *                   type: number
+ *                 review_count:
+ *                   type: integer
+ *                 user_count:
+ *                   type: integer
+ *                 recent_reviews:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       rating:
+ *                         type: number
+ *                       comment:
+ *                         type: string
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       users:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                           username:
+ *                             type: string
+ *                           display_name:
+ *                             type: string
  *       404:
  *         description: Film not found
+ *       500:
+ *         description: Failed to get film detail
  */
